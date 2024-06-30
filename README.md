@@ -29,7 +29,7 @@ A simple To-Do List application built using Flask, SQLAlchemy, and JWT for authe
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/yourusername/to-do-list-app.git
+    git clone https://github.com/lavuchandu169/to-do-list-app.git
     cd to-do-list-app
     ```
 
