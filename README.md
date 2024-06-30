@@ -88,3 +88,28 @@ to-do-list-app/
 └── static/
 ├── style.css
 └── script.js
+
+
+## API Endpoints
+
+- `POST /login`: User login
+- `POST /register`: User registration
+- `GET /tasks`: Get all tasks for the logged-in user
+- `POST /tasks`: Add a new task
+- `DELETE /tasks/<id>`: Delete a task by ID
+
+## Contributing
+
+Contributions are welcome! Please create a pull request with a clear description of your changes.
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+### Author
+
+[Chandu Lavu](https://github.com/lavuchandu169)
+
+
