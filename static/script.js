@@ -13,8 +13,7 @@ function login() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.token) {
-            localStorage.setItem('token', data.token); // Store the token in local storage
+        if (data.success) {
             window.location.href = '/home'; // Redirect to home page
         } else {
             alert('Invalid login');
@@ -27,8 +26,16 @@ function login() {
 }
 
 function logout() {
-    localStorage.removeItem('token'); // Remove the token from local storage
-    window.location.href = '/'; // Redirect to home page
+    fetch(`${apiBaseURL}/logout`, {
+        method: 'POST'
+    })
+    .then(() => {
+        window.location.href = '/'; // Redirect to home page
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error logging out');
+    });
 }
 
 function addTask() {
@@ -37,14 +44,12 @@ function addTask() {
         fetch(`${apiBaseURL}/tasks`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the headers
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ task: taskText })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+        .then(response => {
+            if (response.ok) {
                 loadTasks();
                 document.getElementById('new-task').value = '';
             } else {
@@ -59,11 +64,7 @@ function addTask() {
 }
 
 function loadTasks() {
-    fetch(`${apiBaseURL}/tasks`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the headers
-        }
-    })
+    fetch(`${apiBaseURL}/tasks`)
     .then(response => response.json())
     .then(data => {
         const tasksList = document.getElementById('tasks');
@@ -86,14 +87,10 @@ function loadTasks() {
 
 function deleteTask(index) {
     fetch(`${apiBaseURL}/tasks/${index}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the headers
-        }
+        method: 'DELETE'
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(response => {
+        if (response.ok) {
             loadTasks();
         } else {
             alert('Error deleting task');
@@ -104,3 +101,4 @@ function deleteTask(index) {
         alert('Error deleting task');
     });
 }
+
