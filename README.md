@@ -43,16 +43,20 @@ To get this project running on your local machine, follow these steps:
 **Clone the repository:**
 
 git clone https://github.com/lavuchandu169/to-do-list-app.git
+
 **Navigate into the project directory:**
 
 cd to-do-list-app
+
  **Create and activate a virtual environment:**
 
 python3 -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+
 **Install dependencies:**
 
 pip install -r requirements.txt
+
 **Run the application:**
 
 flask run
