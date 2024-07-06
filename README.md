@@ -20,3 +20,18 @@ The To-Do List Web Application is a simple web-based application developed using
 **HTML/CSS:** For structuring and styling the webpages.
 
 **JavaScript** (Fetch API): For asynchronous operations and interaction with the backend.
+
+### Project Structure
+
+/to-do-list-app
+|-- static/
+|   |-- style.css # CSS styles used across the application
+|   |-- script.js # JavaScript functions for front-end interactions
+|-- templates/
+|   |-- home.html # Homepage with login and register links
+|   |-- login.html # Login page
+|   |-- register.html # Registration page
+|   |-- tasks.html # Task management page
+|-- app.py # Flask application
+|-- requirements.txt # Project dependencies
+|-- README.md # Documentation
