@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -19,6 +20,7 @@ class User(db.Model):
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     task = db.Column(db.String(200), nullable=False)
+    complete = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 # Routes
@@ -44,7 +46,7 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
     session.pop('username', None)
@@ -76,16 +78,17 @@ def tasks():
     current_user_id = session['user_id']
     
     if request.method == 'POST':
-        task_content = request.form['task']
+        data = request.get_json()
+        task_content = data['task']
         new_task = Task(task=task_content, user_id=current_user_id)
         db.session.add(new_task)
         db.session.commit()
-        return redirect(url_for('tasks'))
+        return jsonify({'success': True})
 
     user_tasks = Task.query.filter_by(user_id=current_user_id).all()
     return render_template('tasks.html', tasks=user_tasks)
 
-@app.route('/tasks/<int:id>', methods=['POST'])
+@app.route('/tasks/<int:id>', methods=['DELETE'])
 def delete_task(id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -93,10 +96,38 @@ def delete_task(id):
     task_to_delete = Task.query.get_or_404(id)
     if task_to_delete.user_id != session['user_id']:
         return jsonify({'message': 'Permission denied!'})
-    
+
     db.session.delete(task_to_delete)
     db.session.commit()
-    return redirect(url_for('tasks'))
+    return jsonify({'success': True})
+
+@app.route('/tasks/<int:id>', methods=['PUT'])
+def update_task(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    task_to_update = Task.query.get_or_404(id)
+    if task_to_update.user_id != session['user_id']:
+        return jsonify({'message': 'Permission denied!'})
+
+    data = request.get_json()
+    task_content = data['task']
+    task_to_update.task = task_content
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/tasks/<int:id>/complete', methods=['PUT'])
+def toggle_complete_task(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    task_to_toggle = Task.query.get_or_404(id)
+    if task_to_toggle.user_id != session['user_id']:
+        return jsonify({'message': 'Permission denied!'})
+
+    task_to_toggle.complete = not task_to_toggle.complete
+    db.session.commit()
+    return jsonify({'success': True})
 
 @app.route('/home')
 def index():
@@ -105,5 +136,7 @@ def index():
     return render_template('index.html', username=session['username'])
 
 if __name__ == '__main__':
+    if os.path.exists('site.db'):
+        os.remove('site.db')
     db.create_all()
     app.run(debug=True)
