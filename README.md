@@ -43,7 +43,7 @@ To get this project running on your local machine, follow these steps:
 **Clone the repository:**
 
 git clone https://github.com/lavuchandu169/to-do-list-app.git
-Navigate into the project directory:
+**Navigate into the project directory:**
 
 cd to-do-list-app
  **Create and activate a virtual environment:**
