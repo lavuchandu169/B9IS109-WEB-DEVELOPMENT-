@@ -65,19 +65,13 @@ function addTask() {
 
 function loadTasks() {
     fetch(`${apiBaseURL}/tasks`)
-    .then(response => response.json())
-    .then(data => {
-        const tasksList = document.getElementById('tasks');
-        tasksList.innerHTML = '';
-        data.tasks.forEach((task, index) => {
-            const li = document.createElement('li');
-            li.textContent = task;
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.onclick = () => deleteTask(index);
-            li.appendChild(deleteButton);
-            tasksList.appendChild(li);
-        });
+    .then(response => response.text())
+    .then(html => {
+        console.log('Tasks loaded:', html); // Log the loaded tasks HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const tasksList = doc.getElementById('tasks').innerHTML;
+        document.getElementById('tasks').innerHTML = tasksList;
     })
     .catch(error => {
         console.error('Error:', error);
@@ -85,8 +79,49 @@ function loadTasks() {
     });
 }
 
-function deleteTask(index) {
-    fetch(`${apiBaseURL}/tasks/${index}`, {
+function editTask(id, oldText) {
+    const newText = prompt('Edit task:', oldText);
+    if (newText) {
+        fetch(`${apiBaseURL}/tasks/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ task: newText })
+        })
+        .then(response => {
+            if (response.ok) {
+                loadTasks();
+            } else {
+                alert('Error editing task');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error editing task');
+        });
+    }
+}
+
+function toggleCompleteTask(id) {
+    fetch(`${apiBaseURL}/tasks/${id}/complete`, {
+        method: 'PUT'
+    })
+    .then(response => {
+        if (response.ok) {
+            loadTasks();
+        } else {
+            alert('Error toggling task');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error toggling task');
+    });
+}
+
+function deleteTask(id) {
+    fetch(`${apiBaseURL}/tasks/${id}`, {
         method: 'DELETE'
     })
     .then(response => {
@@ -102,3 +137,33 @@ function deleteTask(index) {
     });
 }
 
+function filterTasks(filter) {
+    const tasksList = document.getElementById('tasks').children;
+    for (let i = 0; i < tasksList.length; i++) {
+        const task = tasksList[i];
+        if (filter === 'all') {
+            task.style.display = 'flex';
+        } else if (filter === 'complete' && task.classList.contains('completed')) {
+            task.style.display = 'flex';
+        } else if (filter === 'incomplete' && !task.classList.contains('completed')) {
+            task.style.display = 'flex';
+        } else {
+            task.style.display = 'none';
+        }
+    }
+}
+
+function searchTasks() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const tasksList = document.getElementById('tasks').children;
+    for (let i = 0; i < tasksList.length; i++) {
+        const task = tasksList[i];
+        if (task.textContent.toLowerCase().includes(query)) {
+            task.style.display = 'flex';
+        } else {
+            task.style.display = 'none';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadTasks);
