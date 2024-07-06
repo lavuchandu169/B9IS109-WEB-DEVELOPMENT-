@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List Tasks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        ul li.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .task-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .task-buttons button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .task-buttons button.edit {
+            background-color: #007bff;
+            color: white;
+        }
+        .task-buttons button.complete {
+            background-color: #28a745;
+            color: white;
+        }
+        .task-buttons button.delete {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List Tasks</h1>
+        <ul id="tasks">
+            {% for task in tasks %}
+            <li class="{% if task.complete %}completed{% endif %}">
+                {{ task.task }}
+                <div class="task-buttons">
+                    <button class="edit" onclick="editTask({{ task.id }}, '{{ task.task|escape }}')">Edit</button>
+                    <button class="complete" onclick="toggleCompleteTask({{ task.id }})">{{ 'Incomplete' if task.complete else 'Complete' }}</button>
+                    <button class="delete" onclick="deleteTask({{ task.id }})">Delete</button>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <form>
+            <input type="text" id="new-task" placeholder="New Task">
+            <button type="button" onclick="addTask()">Add Task</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
