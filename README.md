@@ -67,6 +67,7 @@ This will start the Flask server on http://localhost:5000.
 Open your web browser and go to http://localhost:5000.
 Register as a new user or login if you already have an account.
 Navigate through the application to add, view, edit, or delete your tasks.
+
 **Contributing**
 
 Contributions to the To-Do List Web Application are welcome. Please follow these steps to contribute:
@@ -78,6 +79,7 @@ git checkout -b my-new-feature
 Make your changes and commit them:
 
 git commit -am 'Add some feature'
+
 **Push to the branch:**
 
 git push origin my-new-feature
