@@ -17,12 +17,21 @@ class User(db.Model):
     password = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(50), nullable=False, default='user')
 
+    tasks = db.relationship('Task', backref='owner', lazy=True)
+    events = db.relationship('Event', backref='owner', lazy=True)
+
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     task = db.Column(db.String(200), nullable=False)
     complete = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    start = db.Column(db.String(100), nullable=False)
+    end = db.Column(db.String(100), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 # Routes
 @app.route('/')
 def home():
@@ -126,6 +135,70 @@ def toggle_complete_task(id):
         return jsonify({'message': 'Permission denied!'})
 
     task_to_toggle.complete = not task_to_toggle.complete
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/api/get-events', methods=['GET'])
+def get_events():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    events = Event.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        'id': event.id,
+        'title': event.title,
+        'start': event.start,
+        'end': event.end
+    } for event in events])
+
+@app.route('/api/add-event', methods=['POST'])
+def add_event():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    data = request.get_json()
+    new_event = Event(
+        title=data['title'],
+        start=data['start'],
+        end=data['end'],
+        user_id=session['user_id']
+    )
+    db.session.add(new_event)
+    db.session.commit()
+    return jsonify({'success': True, 'event': {
+        'id': new_event.id,
+        'title': new_event.title,
+        'start': new_event.start,
+        'end': new_event.end
+    }})
+
+@app.route('/api/delete-event/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    event = Event.query.get_or_404(event_id)
+    if event.user_id != session['user_id']:
+        return jsonify({'message': 'Permission denied!'})
+
+    db.session.delete(event)
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/api/update-event/<int:event_id>', methods=['PUT'])
+def update_event(event_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    event = Event.query.get_or_404(event_id)
+    if event.user_id != session['user_id']:
+        return jsonify({'message': 'Permission denied!'})
+
+    data = request.get_json()
+    event.title = data['title']
+    event.start = data['start']
+    event.end = data['end']
     db.session.commit()
     return jsonify({'success': True})
 
