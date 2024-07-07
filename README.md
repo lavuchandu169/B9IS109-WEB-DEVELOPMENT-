@@ -42,7 +42,7 @@ To get this project running on your local machine, follow these steps:
 
 **Clone the repository:**
 
-git clone https://github.com/lavuchandu169/to-do-list-app.git
+git clone https://github.com/lavuchandu169/B9IS109-WEB-DEVELOPMENT-.git
 
 **Navigate into the project directory:**
 
